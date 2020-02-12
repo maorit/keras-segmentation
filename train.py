@@ -61,7 +61,7 @@ def loss(y_true, y_pred):
     return cross_entropy
 
 
-def get_model(model_name='default'):
+def _get_model(model_name='default'):
     return Sequential()
 
 
@@ -89,7 +89,7 @@ early_stopping = EarlyStopping(
 )
 
 if __name__ == '__main__':
-    model = get_model()
+    model = _get_model()
     model.compile(loss=loss, optimizer=Adam(), metrics=['accuracy'])
     model.fit_generator(generator=generate_data_from_file(idx_path=train_idx_path, batch_size=batch_size),
                         steps_per_epoch=max(1, 200 // batch_size),
