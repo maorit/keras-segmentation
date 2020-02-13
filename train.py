@@ -1,64 +1,9 @@
-import random
-
-from PIL import Image
 from keras import Sequential
-from keras import backend as K
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 from keras.optimizers import Adam
 
-from config import *
-
-
-def get_crop_offset(img):
-    left = random.randint(0, img.width - TARGET_WIDTH)
-    upper = random.randint(0, img.height - TARGET_HEIGHT)
-    return (left, upper)
-
-
-def generate_data_from_file(idx_path, batch_size):
-    # 读入图片的编号
-    with open(idx_path, 'r') as f:
-        idxs = f.readlines()
-
-    i = 0
-    while True:
-        imgs = []
-        masks = []
-        for _ in range(batch_size):
-            # 读入样本的编号
-            idx = idxs[i].strip()
-
-            # 读入原图像
-            img = Image.open('{}{}.jpg'.format(img_dir, idx))
-            (left, upper) = get_crop_offset(img)
-            img = np.array(img)
-            img = img[upper:upper + TARGET_HEIGHT, left:left + TARGET_WIDTH, :]
-            img = img / 255
-            imgs.append(img)
-
-            # 读入mask
-            mask_img = Image.open('{}{}.png'.format(mask_dir, idx)).convert('RGB')
-            mask_img = np.array(mask_img)
-            mask_img = mask_img[upper:upper + TARGET_HEIGHT, left:left + TARGET_WIDTH, :]
-            mask = np.zeros((mask_img.shape[0], mask_img.shape[1], NCLASSES))
-            for c in range(NCLASSES):
-                mask[:, :, c] = (mask_img == (palette[c].reshape(1, 1, 3))).all(axis=2)
-            mask = mask.reshape(-1, NCLASSES)
-            masks.append(mask)
-
-            # 断言
-            assert img.shape[0:2] == mask_img.shape[0:2]
-
-            # 转向下一个样本
-            i = (i + 1) % len(idxs)
-
-        yield (np.array(imgs), np.array(masks))
-
-
-def loss(y_true, y_pred):
-    cross_entropy = K.categorical_crossentropy(y_true, y_pred)
-    cross_entropy = K.sum(cross_entropy) / (TARGET_HEIGHT * TARGET_WIDTH)
-    return cross_entropy
+from config import LOG_DIR, TRAIN_BATCH_SIZE, VAL_BATCH_SIZE
+from utils.data_utils import generate_input_data
 
 
 def _get_model(model_name='default'):
@@ -67,7 +12,7 @@ def _get_model(model_name='default'):
 
 # 保存的方式，3世代保存一次
 checkpoint_period = ModelCheckpoint(
-    log_dir + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
+    LOG_DIR + 'ep{epoch:03d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
     monitor='val_loss',
     save_weights_only=True,
     save_best_only=True,
@@ -89,11 +34,24 @@ early_stopping = EarlyStopping(
 )
 
 if __name__ == '__main__':
+    # 获取模型
     model = _get_model()
-    model.compile(loss=loss, optimizer=Adam(), metrics=['accuracy'])
-    model.fit_generator(generator=generate_data_from_file(idx_path=train_idx_path, batch_size=batch_size),
-                        steps_per_epoch=max(1, 200 // batch_size),
-                        validation_data=generate_data_from_file(idx_path=val_idx_path, batch_size=batch_size),
-                        epochs=10,
+
+    # 编译模型
+    model.compile(loss='loss', optimizer=Adam(), metrics=['accuracy'])
+
+    # 生成训练和验证数据
+    train_gen = generate_input_data(stage='train', batch_size=16, input_width=model.input_width,
+                                    input_height=model.input_height, output_width=model.output_width,
+                                    output_height=model.output_height)
+    val_gen = generate_input_data(stage='val', batch_size=16, input_width=model.input_width,
+                                  input_height=model.input_height, output_width=model.output_width,
+                                  output_height=model.output_height)
+
+    # 训练模型
+    model.fit_generator(generator=train_gen, steps_per_epoch=max(1, 200 // TRAIN_BATCH_SIZE), validation_data=val_gen,
+                        validation_steps=max(1, 200 // VAL_BATCH_SIZE), epochs=10,
                         callbacks=[checkpoint_period, reduce_lr, early_stopping])
-    model.save_weights(log_dir + 'last1.h5')
+
+    # 保存权重
+    model.save_weights(LOG_DIR + 'last1.h5')

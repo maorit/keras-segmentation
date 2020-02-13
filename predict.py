@@ -11,5 +11,5 @@ def _get_model(model_name='default'):
 model = _get_model()
 model.load_weights("logs/ep021-loss0.083-val_loss0.143.h5")
 
-img = Image.open('{}{}.jpg'.format(img_dir, '000033'))
+img = Image.open('{}{}.jpg'.format(IMG_DIR, '000033'))
 y_pred = model.predict(img)  # (N, 21)
