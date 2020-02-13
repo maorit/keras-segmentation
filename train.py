@@ -1,19 +1,10 @@
-from pathlib import Path
-
-import cv2
-import numpy as np
-from keras import Sequential
+from keras import backend as K
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 from keras.optimizers import Adam
 
-from config import LOG_DIR, TRAIN_BATCH_SIZE, VAL_BATCH_SIZE, N_CLASSES, INPUT_WIDTH, INPUT_HEIGHT, PALETTE
+from config import LOG_DIR, TRAIN_BATCH_SIZE, VAL_BATCH_SIZE, N_CLASSES, INPUT_WIDTH, INPUT_HEIGHT
 from model.fcn import fcn_32
-from utils.data_utils import generate_input_data, _get_image_array
-
-
-def _get_model(model_name='default'):
-    return Sequential()
-
+from utils.data_utils import generate_input_data
 
 # 保存的方式，3世代保存一次
 checkpoint_period = ModelCheckpoint(
@@ -21,7 +12,7 @@ checkpoint_period = ModelCheckpoint(
     monitor='val_loss',
     save_weights_only=True,
     save_best_only=True,
-    period=3
+    period=1
 )
 # 学习率下降的方式，val_loss3次不下降就下降学习率继续训练
 reduce_lr = ReduceLROnPlateau(
@@ -30,6 +21,7 @@ reduce_lr = ReduceLROnPlateau(
     patience=3,
     verbose=1
 )
+
 # 是否需要早停，当val_loss一直不下降的时候意味着模型基本训练完毕，可以停止
 early_stopping = EarlyStopping(
     monitor='val_loss',
@@ -38,53 +30,32 @@ early_stopping = EarlyStopping(
     verbose=1
 )
 
+
+def my_loss(y_true, y_pred):
+    return K.mean(K.categorical_crossentropy(y_true, y_pred))
+
+
 if __name__ == '__main__':
     # 获取模型
     model = fcn_32(n_classes=N_CLASSES, input_width=INPUT_WIDTH, input_height=INPUT_HEIGHT)
 
     # 编译模型
-    model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy'])
+    model.compile(loss=my_loss, optimizer=Adam(), metrics=['accuracy'])
 
     # 生成训练和验证数据
-    train_gen = generate_input_data(stage='train', batch_size=2, n_classes=N_CLASSES, input_width=model.input_width,
+    train_gen = generate_input_data(stage='train', batch_size=TRAIN_BATCH_SIZE, n_classes=N_CLASSES,
+                                    input_width=model.input_width,
                                     input_height=model.input_height, output_width=model.output_width,
                                     output_height=model.output_height)
-    val_gen = generate_input_data(stage='val', batch_size=2, n_classes=N_CLASSES, input_width=model.input_width,
+    val_gen = generate_input_data(stage='val', batch_size=VAL_BATCH_SIZE, n_classes=N_CLASSES,
+                                  input_width=model.input_width,
                                   input_height=model.input_height, output_width=model.output_width,
                                   output_height=model.output_height)
 
     # 训练模型
     model.fit_generator(generator=train_gen, steps_per_epoch=max(1, 200 // TRAIN_BATCH_SIZE), validation_data=val_gen,
-                        validation_steps=max(1, 200 // VAL_BATCH_SIZE), epochs=2,
+                        validation_steps=max(1, 20 // VAL_BATCH_SIZE), epochs=10,
                         callbacks=[checkpoint_period, reduce_lr, early_stopping])
 
     # # 保存权重
-    # model.save_weights(LOG_DIR + 'last1.h5')
-
-    # 测试
-    # test_data = cv2.imread(r'E:\keras-segmentation\data\VOCdevkit\VOC2007\JPEGImages\000063.jpg')
-    # test_data = test_data / 255.0
-    # input_height = test_data.shape[0]
-    # input_width = test_data.shape[1]
-    # output_height = (input_height // 32 + 1) * 32
-    # output_width = (input_width // 32 + 1) * 32
-    output_height = model.output_height
-    output_width = model.output_width
-    # r'data/VOCdevkit/VOC2007/SegmentationClass/000063.png'
-    test_data = _get_image_array(image_path=Path(r'E:\keras-segmentation\data\VOCdevkit\VOC2007\JPEGImages\000063.jpg'),
-                                 width=INPUT_WIDTH, height=INPUT_HEIGHT)
-    test_data = np.array([test_data])
-    output = model.predict(test_data)
-    output = output[0]
-    output = output.argmax(axis=1)
-    output.resize(output_width, output_height)
-    output_img = np.zeros((output_width, output_height, 3))
-    for c in range(N_CLASSES):
-        output_img[:, :, 0] += (output == c).astype(np.int) * PALETTE[c, 0]
-        output_img[:, :, 1] += (output == c).astype(np.int) * PALETTE[c, 1]
-        output_img[:, :, 2] += (output == c).astype(np.int) * PALETTE[c, 2]
-
-    import matplotlib.pyplot as plt
-
-    plt.imshow(output_img)
-    plt.show()
+    model.save_weights('./last1.h5')

@@ -37,8 +37,14 @@ def _get_seg_array(seg_image_path: Path, n_classes: int, width: int, height: int
     :return: 输入给模型的分割结果数据
     """
 
+    '''
+    cv2有两个比较坑的点:
+    1. 别的都是行先序,但是它是列先序,所以resize时候注意先width,后height
+    2. 默认读入彩色图片为bgr顺序,然而实际常用的是rgb顺序
+    '''
     seg_img = cv2.imread(str(seg_image_path.absolute()), cv2.IMREAD_COLOR)
     seg_img = cv2.resize(seg_img, (width, height), interpolation=cv2.INTER_NEAREST)
+    seg_img = cv2.cvtColor(seg_img, cv2.COLOR_BGR2RGB)
 
     seg_labels = np.zeros((height, width, n_classes))
     for c in range(n_classes):

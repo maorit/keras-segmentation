@@ -7,7 +7,7 @@ INPUT_WIDTH = 608
 
 N_CLASSES = 21
 TRAIN_BATCH_SIZE = 16
-VAL_BATCH_SIZE = 16
+VAL_BATCH_SIZE = 4
 
 TRAIN_IDX_PATH = Path(r'data/VOCdevkit/VOC2007/ImageSets/Segmentation/train.txt')
 VAL_IDX_PATH = Path(r'data/VOCdevkit/VOC2007/ImageSets/Segmentation/val.txt')
