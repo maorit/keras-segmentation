@@ -2,7 +2,8 @@ from keras import Sequential
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 from keras.optimizers import Adam
 
-from config import LOG_DIR, TRAIN_BATCH_SIZE, VAL_BATCH_SIZE
+from config import LOG_DIR, TRAIN_BATCH_SIZE, VAL_BATCH_SIZE, N_CLASSES, INPUT_WIDTH, INPUT_HEIGHT
+from model.fcn import fcn_32
 from utils.data_utils import generate_input_data
 
 
@@ -35,22 +36,22 @@ early_stopping = EarlyStopping(
 
 if __name__ == '__main__':
     # 获取模型
-    model = _get_model()
+    model = fcn_32(n_classes=N_CLASSES, input_width=INPUT_WIDTH, input_height=INPUT_HEIGHT)
 
     # 编译模型
-    model.compile(loss='loss', optimizer=Adam(), metrics=['accuracy'])
+    model.compile(loss='categorical_crossentropy', optimizer=Adam(), metrics=['accuracy'])
 
     # 生成训练和验证数据
-    train_gen = generate_input_data(stage='train', batch_size=16, input_width=model.input_width,
+    train_gen = generate_input_data(stage='train', batch_size=2, n_classes=N_CLASSES, input_width=model.input_width,
                                     input_height=model.input_height, output_width=model.output_width,
                                     output_height=model.output_height)
-    val_gen = generate_input_data(stage='val', batch_size=16, input_width=model.input_width,
+    val_gen = generate_input_data(stage='val', batch_size=2, n_classes=N_CLASSES, input_width=model.input_width,
                                   input_height=model.input_height, output_width=model.output_width,
                                   output_height=model.output_height)
 
     # 训练模型
     model.fit_generator(generator=train_gen, steps_per_epoch=max(1, 200 // TRAIN_BATCH_SIZE), validation_data=val_gen,
-                        validation_steps=max(1, 200 // VAL_BATCH_SIZE), epochs=10,
+                        validation_steps=max(1, 200 // VAL_BATCH_SIZE), epochs=2,
                         callbacks=[checkpoint_period, reduce_lr, early_stopping])
 
     # 保存权重
