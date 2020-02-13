@@ -5,10 +5,10 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from config import PALETTE, TRAIN_IDX_PATH, VAL_IDX_PATH, IMG_DIR, SEG_DIR
+from config import PALETTE, TRAIN_IDX_PATH, VAL_IDX_PATH, IMG_DIR, SEG_DIR, IMAGE_ORDERING
 
 
-def _get_image_array(image_path: Path, width: int, height: int, data_format='channels_first') -> np.ndarray:
+def _get_image_array(image_path: Path, width: int, height: int, data_format=IMAGE_ORDERING) -> np.ndarray:
     """
     读取原图片,生成输入给模型的图片数据
     :param image_path: 输入图片的路径,pathlib.Path对象

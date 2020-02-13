@@ -1,10 +1,14 @@
+from pathlib import Path
+
+import cv2
+import numpy as np
 from keras import Sequential
 from keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 from keras.optimizers import Adam
 
-from config import LOG_DIR, TRAIN_BATCH_SIZE, VAL_BATCH_SIZE, N_CLASSES, INPUT_WIDTH, INPUT_HEIGHT
+from config import LOG_DIR, TRAIN_BATCH_SIZE, VAL_BATCH_SIZE, N_CLASSES, INPUT_WIDTH, INPUT_HEIGHT, PALETTE
 from model.fcn import fcn_32
-from utils.data_utils import generate_input_data
+from utils.data_utils import generate_input_data, _get_image_array
 
 
 def _get_model(model_name='default'):
@@ -54,5 +58,33 @@ if __name__ == '__main__':
                         validation_steps=max(1, 200 // VAL_BATCH_SIZE), epochs=2,
                         callbacks=[checkpoint_period, reduce_lr, early_stopping])
 
-    # 保存权重
-    model.save_weights(LOG_DIR + 'last1.h5')
+    # # 保存权重
+    # model.save_weights(LOG_DIR + 'last1.h5')
+
+    # 测试
+    # test_data = cv2.imread(r'E:\keras-segmentation\data\VOCdevkit\VOC2007\JPEGImages\000063.jpg')
+    # test_data = test_data / 255.0
+    # input_height = test_data.shape[0]
+    # input_width = test_data.shape[1]
+    # output_height = (input_height // 32 + 1) * 32
+    # output_width = (input_width // 32 + 1) * 32
+    output_height = model.output_height
+    output_width = model.output_width
+    # r'data/VOCdevkit/VOC2007/SegmentationClass/000063.png'
+    test_data = _get_image_array(image_path=Path(r'E:\keras-segmentation\data\VOCdevkit\VOC2007\JPEGImages\000063.jpg'),
+                                 width=INPUT_WIDTH, height=INPUT_HEIGHT)
+    test_data = np.array([test_data])
+    output = model.predict(test_data)
+    output = output[0]
+    output = output.argmax(axis=1)
+    output.resize(output_width, output_height)
+    output_img = np.zeros((output_width, output_height, 3))
+    for c in range(N_CLASSES):
+        output_img[:, :, 0] += (output == c).astype(np.int) * PALETTE[c, 0]
+        output_img[:, :, 1] += (output == c).astype(np.int) * PALETTE[c, 1]
+        output_img[:, :, 2] += (output == c).astype(np.int) * PALETTE[c, 2]
+
+    import matplotlib.pyplot as plt
+
+    plt.imshow(output_img)
+    plt.show()
