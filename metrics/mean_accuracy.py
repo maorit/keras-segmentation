@@ -7,8 +7,8 @@ def mean_acc(n_classes):
         计算第clazz类的accuracy
         """
         epsilon = 1e-7
-        y_true = K.cast(K.equal(K.argmax(y_true), clazz), K.floatx())
-        y_pred = K.cast(K.equal(K.argmax(y_pred), clazz), K.floatx())
+        y_true = K.cast(K.equal(K.argmax(y_true, axis=-1), clazz), K.floatx())
+        y_pred = K.cast(K.equal(K.argmax(y_pred, axis=-1), clazz), K.floatx())
         acc = K.sum(y_true * y_pred) / (K.sum(y_true) + epsilon)
 
         return acc

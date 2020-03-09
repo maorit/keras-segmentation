@@ -6,8 +6,8 @@ def mean_iou(n_classes):
         """
         计算第clazz类的iou
         """
-        y_true = K.cast(K.equal(K.argmax(y_true), clazz), K.floatx())
-        y_pred = K.cast(K.equal(K.argmax(y_pred), clazz), K.floatx())
+        y_true = K.cast(K.equal(K.argmax(y_true, axis=-1), clazz), K.floatx())
+        y_pred = K.cast(K.equal(K.argmax(y_pred, axis=-1), clazz), K.floatx())
         intersection = K.sum(y_true * y_pred)
         union = K.sum(y_true) + K.sum(y_pred) - intersection
         return K.switch(K.equal(union, 0), 1.0, intersection / union)
