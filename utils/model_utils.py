@@ -1,40 +1,70 @@
 from keras import Model
-from keras.layers import Reshape, Permute, Activation
+from keras.layers import Cropping2D
 
 from config import IMAGE_ORDERING
 
 
-def get_segmentation_model(input, output):
-    img_input = input
-    o = output
+def _get_output_shape(img_input, output, input_height, input_width):
+    """
+    计算以img_input为输入层,输入层尺寸为input_height, input_width的模型的output层输出尺寸
+    :return: 输出层尺寸(output_height, output_width)
+    """
+    _, output_height, output_width, _ = Model(img_input, output).compute_output_shape(
+        input_shape=(1, input_height, input_width, 3))
+    return (output_height, output_width)
 
-    o_shape = Model(img_input, o).output_shape
-    i_shape = Model(img_input, o).input_shape
 
-    if IMAGE_ORDERING == 'channels_first':
-        output_height = o_shape[2]
-        output_width = o_shape[3]
-        input_height = i_shape[2]
-        input_width = i_shape[3]
-        n_classes = o_shape[1]
-        o = (Reshape((-1, output_height * output_width)))(o)
-        o = (Permute((2, 1)))(o)
-    elif IMAGE_ORDERING == 'channels_last':
-        output_height = o_shape[1]
-        output_width = o_shape[2]
-        input_height = i_shape[1]
-        input_width = i_shape[2]
-        n_classes = o_shape[3]
-        o = (Reshape((output_height * output_width, -1)))(o)
+def _crop_to_same(img_input, output1, output2, input_height, input_width):
+    """
+    将output1和output2两层裁剪到相同尺寸
+    :param img_input: 模型的输入层
+    :param output1: 待裁剪的层1
+    :param output2: 待裁剪的层1
+    :param input_height: 输入层尺寸
+    :param input_width: 输入层尺寸
+    :return: 裁剪好后的output1和output2两层
+    """
+    # 计算两层的输出尺寸
+    output_height1, output_width1 = _get_output_shape(img_input, output1, input_height, input_width)
+    output_height2, output_width2 = _get_output_shape(img_input, output2, input_height, input_width)
+    # 对比两个维度上的尺寸差值
+    cx = abs(output_width2 - output_width1)
+    cy = abs(output_height2 - output_height1)
+    # 裁剪
+    if output_width1 > output_width2:
+        output1 = Cropping2D(cropping=((0, 0), (0, cx)), data_format=IMAGE_ORDERING)(output1)
+    else:
+        output2 = Cropping2D(cropping=((0, 0), (0, cx)), data_format=IMAGE_ORDERING)(output2)
+    if output_height1 > output_height2:
+        output1 = Cropping2D(cropping=((0, cy), (0, 0)), data_format=IMAGE_ORDERING)(output1)
+    else:
+        output2 = Cropping2D(cropping=((0, cy), (0, 0)), data_format=IMAGE_ORDERING)(output2)
 
-    o = (Activation('softmax'))(o)
+    return output1, output2
 
-    model = Model(img_input, o)
-    model.output_width = output_width
-    model.output_height = output_height
-    model.n_classes = n_classes
-    model.input_height = input_height
-    model.input_width = input_width
-    model.model_name = ""
 
-    return model
+def _crop_to_size(img_input, output, input_height, input_width, target_height, target_width):
+    """
+    将output层裁剪到(target_height,target_width)尺寸
+    :param img_input: 输入层
+    :param output: 待裁剪的层
+    :param input_height: 输入层尺寸input_height
+    :param input_width: 输入层尺寸input_width
+    :param target_height: 裁剪目标尺寸target_height
+    :param target_width: 裁剪目标尺寸target_width
+    :return: 裁剪好后的output层
+    """
+
+    assert target_height <= input_height
+    assert target_width <= input_width
+
+    # 计算输出尺寸
+    output_height, output_width = _get_output_shape(img_input, output, input_height, input_width)
+    # 对比两个维度上的尺寸差值
+    cy = abs(output_height - target_height)
+    cx = abs(output_width - target_width)
+    # 裁剪
+    if cx > 0 or cy > 0:
+        output = Cropping2D(cropping=((0, cy), (0, cx)), data_format=IMAGE_ORDERING)(output)
+
+    return output
