@@ -16,5 +16,4 @@ def segnet(n_classes, input_height, input_width, encoder=vgg_encoder):
     :return: SegNet模型
     """
 
-    img_input, [h1, h2, h3, h4, h5] = encoder(input_height=input_height, input_width=input_width)
-
+    img_input, [f1, f2, f3, f4, f5] = encoder(input_height=input_height, input_width=input_width)

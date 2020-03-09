@@ -16,9 +16,9 @@ def fcn_32(n_classes, input_height, input_width, encoder=vgg_encoder):
     :return: FCN32模型
     """
 
-    img_input, [h1, h2, h3, h4, h5] = encoder(input_height=input_height, input_width=input_width)
+    img_input, [f1, f2, f3, f4, f5] = encoder(input_height=input_height, input_width=input_width)
 
-    o = h5
+    o = f5
     o = Conv2D(256, (7, 7), activation='relu', padding='same', data_format=IMAGE_ORDERING)(o)
     o = Dropout(0.5)(o)
     o = Conv2D(256, (1, 1), activation='relu', padding='same', data_format=IMAGE_ORDERING)(o)
@@ -43,9 +43,9 @@ def fcn_16(n_classes, input_height, input_width, encoder=vgg_encoder):
     :return: FCN16模型
     """
 
-    img_input, [h1, h2, h3, h4, h5] = encoder(input_height=input_height, input_width=input_width)
+    img_input, [f1, f2, f3, f4, f5] = encoder(input_height=input_height, input_width=input_width)
     # 提取第5层feature map
-    o = h5
+    o = f5
     o = Conv2D(256, (7, 7), activation='relu', padding='same', data_format=IMAGE_ORDERING)(o)
     o = Dropout(0.5)(o)
     o = Conv2D(256, (1, 1), activation='relu', padding='same', data_format=IMAGE_ORDERING)(o)
@@ -53,7 +53,7 @@ def fcn_16(n_classes, input_height, input_width, encoder=vgg_encoder):
     o = Conv2D(21, (1, 1), activation='linear', padding='same', data_format=IMAGE_ORDERING)(o)
     o = Conv2DTranspose(n_classes, kernel_size=(4, 4), strides=(2, 2), use_bias=False, data_format=IMAGE_ORDERING)(o)
     # 提取第4层feature map并汇总
-    o1 = h4
+    o1 = f4
     o1 = Conv2D(21, (1, 1), activation='linear', padding='same', data_format=IMAGE_ORDERING)(o1)
     o, o1 = _crop_to_same(img_input, o, o1, input_height, input_width)
     o = Add()([o, o1])
@@ -77,9 +77,9 @@ def fcn_8(n_classes, input_height, input_width, encoder=vgg_encoder):
     :return: FCN8模型
     """
 
-    img_input, [h1, h2, h3, h4, h5] = encoder(input_height=input_height, input_width=input_width)
+    img_input, [f1, f2, f3, f4, f5] = encoder(input_height=input_height, input_width=input_width)
     # 提取第5层feature map
-    o = h5
+    o = f5
     o = Conv2D(256, (7, 7), activation='relu', padding='same', data_format=IMAGE_ORDERING)(o)
     o = Dropout(0.5)(o)
     o = Conv2D(256, (1, 1), activation='relu', padding='same', data_format=IMAGE_ORDERING)(o)
@@ -87,13 +87,13 @@ def fcn_8(n_classes, input_height, input_width, encoder=vgg_encoder):
     o = Conv2D(21, (1, 1), activation='linear', padding='same', data_format=IMAGE_ORDERING)(o)
     o = Conv2DTranspose(n_classes, kernel_size=(4, 4), strides=(2, 2), use_bias=False, data_format=IMAGE_ORDERING)(o)
     # 提取第4层feature map并汇总
-    o1 = h4
+    o1 = f4
     o1 = Conv2D(21, (1, 1), activation='linear', padding='same', data_format=IMAGE_ORDERING)(o1)
     o, o1 = _crop_to_same(img_input, o, o1, input_height, input_width)
     o = Add()([o, o1])
     o = Conv2DTranspose(n_classes, kernel_size=(4, 4), strides=(2, 2), use_bias=False, data_format=IMAGE_ORDERING)(o)
     # 提取第三层feature map并汇总
-    o1 = h3
+    o1 = f3
     o1 = Conv2D(n_classes, (1, 1), data_format=IMAGE_ORDERING)(o1)
     o, o1 = _crop_to_same(img_input, o, o1, input_height, input_width)
     o = Add()([o, o1])
@@ -104,3 +104,4 @@ def fcn_8(n_classes, input_height, input_width, encoder=vgg_encoder):
     o = Activation('softmax')(o)
 
     return Model(img_input, o)
+

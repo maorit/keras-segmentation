@@ -15,10 +15,10 @@ def vgg_encoder(input_height, input_width):
         layer.trainable = False
     # 提取特征层
     img_input = vgg_model.get_layer(index=0).output
-    h1 = vgg_model.get_layer('block1_pool').output
-    h2 = vgg_model.get_layer('block2_pool').output
-    h3 = vgg_model.get_layer('block3_pool').output
-    h4 = vgg_model.get_layer('block4_pool').output
-    h5 = vgg_model.get_layer('block5_pool').output
+    f1 = vgg_model.get_layer('block1_pool').output
+    f2 = vgg_model.get_layer('block2_pool').output
+    f3 = vgg_model.get_layer('block3_pool').output
+    f4 = vgg_model.get_layer('block4_pool').output
+    f5 = vgg_model.get_layer('block5_pool').output
     # 返回模型的输入层和特征层
-    return img_input, [h1, h2, h3, h4, h5]
+    return img_input, [f1, f2, f3, f4, f5]
