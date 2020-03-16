@@ -1,4 +1,4 @@
-from keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.vgg16 import VGG16
 
 
 def vgg_encoder(input_height, input_width):

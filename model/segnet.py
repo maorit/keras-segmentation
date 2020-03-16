@@ -1,5 +1,5 @@
-from keras import Model
-from keras.layers import Conv2D, Reshape, Activation, BatchNormalization, UpSampling2D
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Conv2D, Reshape, Activation, BatchNormalization, UpSampling2D
 
 from config import IMAGE_ORDERING
 from model.vgg16 import vgg_encoder

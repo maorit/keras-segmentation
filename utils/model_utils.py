@@ -1,5 +1,5 @@
-from keras import Model
-from keras.layers import Cropping2D
+from tensorflow.keras import Model
+from tensorflow.keras.layers import Cropping2D
 
 from config import IMAGE_ORDERING
 

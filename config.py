@@ -17,8 +17,12 @@ LOG_DIR = r'logs/'  # 日志目录
 TRAIN_BATCH_SIZE = 4  # 训练集batchsize
 VAL_BATCH_SIZE = 4  # 验证集batchsize
 
-# 颜色版:不同类别目标在分割图上对应的颜色
+# VOC数据集
 PALETTE = np.array(
     [[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0], [0, 0, 128], [128, 0, 128], [0, 128, 128], [128, 128, 128],
      [64, 0, 0], [192, 0, 0], [64, 128, 0], [192, 128, 0], [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
-     [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0], [0, 64, 128]], dtype='uint8')
+     [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0], [0, 64, 128]], dtype='uint8')    # 颜色版:不同类别对应的颜色
+VOC_CLASSES = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
+               'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
+               'diningtable', 'dog', 'horse', 'motorbike', 'person',
+               'potted plant', 'sheep', 'sofa', 'train', 'tv/monitor']      # 类别名: 不同类别对应的类名
