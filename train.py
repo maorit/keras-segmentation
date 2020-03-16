@@ -38,8 +38,10 @@ if __name__ == '__main__':
     # 获取模型
     model = fcn_8(21, input_height=INPUT_HEIGHT, input_width=INPUT_WIDTH)
     # 编译模型
+    # model.compile(loss=focal_loss(alpha=np.ones(21)), optimizer=Adam(lr=1e-4),
+    #               metrics=['categorical_accuracy', mean_iou(21), mean_acc(21)])
     model.compile(loss=focal_loss(alpha=np.ones(21)), optimizer=Adam(lr=1e-4),
-                  metrics=['categorical_accuracy', mean_iou(21), mean_acc(21)])
+                  metrics=['categorical_accuracy'])
 
     # 生成训练和验证数据
     train_gen = generate_input_data(stage='train', batch_size=TRAIN_BATCH_SIZE, n_classes=N_CLASSES,
