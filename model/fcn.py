@@ -104,4 +104,3 @@ def fcn_8(n_classes, input_height, input_width, encoder=vgg_encoder):
     o = Activation('softmax')(o)
 
     return Model(img_input, o)
-

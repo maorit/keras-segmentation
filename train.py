@@ -1,15 +1,15 @@
 import numpy as np
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
+from tensorflow.keras.metrics import MeanIoU
 from tensorflow.keras.optimizers import Adam
 
-# 保存的方式，3世代保存一次
 from config import LOG_DIR, INPUT_HEIGHT, INPUT_WIDTH, TRAIN_BATCH_SIZE, N_CLASSES, VAL_BATCH_SIZE
 from losses.focal_loss import focal_loss
-from metrics.mean_accuracy import mean_acc
-from metrics.mean_iou import mean_iou
+from metrics.mean_accuracy import acc_of_clazz0, acc_of_clazz1, acc_of_clazz2
 from model.fcn import fcn_8
 from utils.data_utils import generate_input_data
 
+# 保存的方式，3世代保存一次
 checkpoint_period = ModelCheckpoint(
     LOG_DIR + 'ep{epoch:05d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
     monitor='val_loss',
@@ -38,10 +38,9 @@ if __name__ == '__main__':
     # 获取模型
     model = fcn_8(21, input_height=INPUT_HEIGHT, input_width=INPUT_WIDTH)
     # 编译模型
-    # model.compile(loss=focal_loss(alpha=np.ones(21)), optimizer=Adam(lr=1e-4),
-    #               metrics=['categorical_accuracy', mean_iou(21), mean_acc(21)])
     model.compile(loss=focal_loss(alpha=np.ones(21)), optimizer=Adam(lr=1e-4),
-                  metrics=['categorical_accuracy'])
+                  metrics=['categorical_accuracy', MeanIoU(num_classes=N_CLASSES),
+                           acc_of_clazz0, acc_of_clazz1, acc_of_clazz2])
 
     # 生成训练和验证数据
     train_gen = generate_input_data(stage='train', batch_size=TRAIN_BATCH_SIZE, n_classes=N_CLASSES,
