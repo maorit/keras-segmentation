@@ -1,6 +1,7 @@
-from config import *
+import numpy as np
 
-from model.fcn import fcn_32, fcn_8
+from config import N_CLASSES, INPUT_WIDTH, INPUT_HEIGHT, PALETTE
+from model.fcn import fcn_8
 from utils.data_utils import _load_image
 
 # 获取模型
@@ -10,10 +11,10 @@ model = fcn_8(n_classes=N_CLASSES, input_width=INPUT_WIDTH, input_height=INPUT_H
 # model.load_weights(r"C:\Users\chenhai\Downloads\last1.h5")
 
 # 进行预测
-output_height = model.output_height
-output_width = model.output_width
+output_height = INPUT_HEIGHT
+output_width = INPUT_WIDTH
 # r'data/VOCdevkit/VOC2007/SegmentationClass/000063.png'
-test_data = _load_image(image_path=Path(r'E:\keras-segmentation\data\VOCdevkit\VOC2007\JPEGImages\000250.jpg'),
+test_data = _load_image(image_path=r'data\VOCdevkit\VOC2012\JPEGImages\2007_000033.jpg',
                         width=INPUT_WIDTH, height=INPUT_HEIGHT)
 test_data = np.array([test_data])
 output = model.predict(test_data)

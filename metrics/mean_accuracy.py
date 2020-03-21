@@ -67,17 +67,6 @@ def acc_of_clazz5(y_true, y_pred):
     return acc
 
 
-def acc_of_clazz5(y_true, y_pred):
-    """
-    计算第clazz类的accuracy
-    """
-    y_true = tf.equal(tf.argmax(y_true, axis=-1), 5)
-    y_pred = tf.cast(tf.equal(tf.argmax(y_pred, axis=-1), 5), tf.float32)
-
-    acc = tf.boolean_mask(y_pred, y_true)
-    return acc
-
-
 def acc_of_clazz6(y_true, y_pred):
     """
     计算第clazz类的accuracy
@@ -238,39 +227,6 @@ def acc_of_clazz20(y_true, y_pred):
     """
     y_true = tf.equal(tf.argmax(y_true, axis=-1), 20)
     y_pred = tf.cast(tf.equal(tf.argmax(y_pred, axis=-1), 20), tf.float32)
-
-    acc = tf.boolean_mask(y_pred, y_true)
-    return acc
-
-
-def acc_of_clazz21(y_true, y_pred):
-    """
-    计算第clazz类的accuracy
-    """
-    y_true = tf.equal(tf.argmax(y_true, axis=-1), 21)
-    y_pred = tf.cast(tf.equal(tf.argmax(y_pred, axis=-1), 21), tf.float32)
-
-    acc = tf.boolean_mask(y_pred, y_true)
-    return acc
-
-
-def acc_of_clazz22(y_true, y_pred):
-    """
-    计算第clazz类的accuracy
-    """
-    y_true = tf.equal(tf.argmax(y_true, axis=-1), 22)
-    y_pred = tf.cast(tf.equal(tf.argmax(y_pred, axis=-1), 22), tf.float32)
-
-    acc = tf.boolean_mask(y_pred, y_true)
-    return acc
-
-
-def acc_of_clazz23(y_true, y_pred):
-    """
-    计算第clazz类的accuracy
-    """
-    y_true = tf.equal(tf.argmax(y_true, axis=-1), 23)
-    y_pred = tf.cast(tf.equal(tf.argmax(y_pred, axis=-1), 23), tf.float32)
 
     acc = tf.boolean_mask(y_pred, y_true)
     return acc

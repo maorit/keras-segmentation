@@ -5,7 +5,7 @@ from tensorflow.keras.optimizers import Adam
 
 from config import LOG_DIR, INPUT_HEIGHT, INPUT_WIDTH, TRAIN_BATCH_SIZE, N_CLASSES, VAL_BATCH_SIZE
 from losses.focal_loss import focal_loss
-from metrics.mean_accuracy import acc_of_clazz0, acc_of_clazz1, acc_of_clazz2
+from metrics.mean_accuracy import *
 from model.fcn import fcn_8
 from utils.data_utils import generate_input_data
 
@@ -38,9 +38,18 @@ if __name__ == '__main__':
     # 获取模型
     model = fcn_8(21, input_height=INPUT_HEIGHT, input_width=INPUT_WIDTH)
     # 编译模型
+    # model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=1e-4),
+    #               metrics=['categorical_accuracy', MeanIoU(num_classes=N_CLASSES),
+    #                        acc_of_clazz0, acc_of_clazz1, acc_of_clazz2, acc_of_clazz3, acc_of_clazz4, acc_of_clazz5,
+    #                        acc_of_clazz6, acc_of_clazz7, acc_of_clazz8, acc_of_clazz9, acc_of_clazz10, acc_of_clazz11,
+    #                        acc_of_clazz12, acc_of_clazz13, acc_of_clazz14, acc_of_clazz15, acc_of_clazz16,
+    #                        acc_of_clazz17, acc_of_clazz18, acc_of_clazz19, acc_of_clazz20])
     model.compile(loss=focal_loss(alpha=np.ones(21)), optimizer=Adam(lr=1e-4),
                   metrics=['categorical_accuracy', MeanIoU(num_classes=N_CLASSES),
-                           acc_of_clazz0, acc_of_clazz1, acc_of_clazz2])
+                           acc_of_clazz0, acc_of_clazz1, acc_of_clazz2, acc_of_clazz3, acc_of_clazz4, acc_of_clazz5,
+                           acc_of_clazz6, acc_of_clazz7, acc_of_clazz8, acc_of_clazz9, acc_of_clazz10, acc_of_clazz11,
+                           acc_of_clazz12, acc_of_clazz13, acc_of_clazz14, acc_of_clazz15, acc_of_clazz16,
+                           acc_of_clazz17, acc_of_clazz18, acc_of_clazz19, acc_of_clazz20])
 
     # 生成训练和验证数据
     train_gen = generate_input_data(stage='train', batch_size=TRAIN_BATCH_SIZE, n_classes=N_CLASSES,

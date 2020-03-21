@@ -8,10 +8,10 @@ from PIL import Image
 from config import TRAIN_IDX_PATH, VAL_IDX_PATH, IMG_DIR, SEG_DIR, IMAGE_ORDERING
 
 
-def _load_image(image_path: Path, width: int, height: int, data_format=IMAGE_ORDERING) -> np.ndarray:
+def _load_image(image_path, width: int, height: int, data_format=IMAGE_ORDERING) -> np.ndarray:
     """
     读取原图片,生成输入给模型的图片数据
-    :param image_path: 输入图片的路径,pathlib.Path对象
+    :param image_path: 输入图片的路径,pathlib.Path对象或字符串
     :param width: 生成数据的宽度
     :param height: 生成数据的高度
     :param data_format: 生成数据维度的顺序,one of "channels_last" or "channels_first"
@@ -46,7 +46,6 @@ def _load_label(seg_image_path: Path, n_classes: int, width: int, height: int) -
     # 转为one-hot编码
     seg_array = np.zeros((height, width, n_classes))
     seg_img[seg_img == 255] = 0
-    # seg_array[:, :, 0] = (seg_img == 255)
     for c in range(n_classes):
         seg_array[:, :, c] = (seg_img == c)
     # 转为向量
