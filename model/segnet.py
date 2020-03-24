@@ -6,7 +6,7 @@ from model.vgg16 import vgg_encoder
 from utils.model_utils import _crop_to_size
 
 
-def segnet(n_classes, input_height, input_width, encoder=vgg_encoder, n_up=3):
+def segnet(n_classes, input_height, input_width, encoder=vgg_encoder, n_up=5):
     """
     根据给定的encoder,构造SegNet模型
     :param n_classes: 分类数
