@@ -6,7 +6,7 @@ from tensorflow.keras.optimizers import Adam
 from config import LOG_DIR, INPUT_HEIGHT, INPUT_WIDTH, TRAIN_BATCH_SIZE, N_CLASSES, VAL_BATCH_SIZE
 from losses.focal_loss import focal_loss
 from metrics.mean_accuracy import *
-from model.fcn import fcn_8
+from model.unet import unet
 from utils.data_utils import generate_input_data
 
 # 保存的方式，3世代保存一次
@@ -36,7 +36,7 @@ early_stopping = EarlyStopping(
 
 if __name__ == '__main__':
     # 获取模型
-    model = fcn_8(21, input_height=INPUT_HEIGHT, input_width=INPUT_WIDTH)
+    model = unet(21, input_height=INPUT_HEIGHT, input_width=INPUT_WIDTH)
     # 编译模型
     # model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=1e-4),
     #               metrics=['categorical_accuracy', MeanIoU(num_classes=N_CLASSES),
