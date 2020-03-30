@@ -1,11 +1,12 @@
 import pickle
 
+import numpy as np
 from matplotlib import pyplot as plt
 
 from config import VOC_CLASSES
 
 # 历史记录名
-history_filename = r'fcn32_CrossEntropy_null_null_1e4'
+history_filename = r'fcn32_FocalLoss_PositiveNegativeBoth_OnesBalance_lr1e4_gamma5'
 
 # 读取历史记录
 with open(f'E:\keras-segmentation\logs\{history_filename}.history', 'rb') as history_file:
@@ -23,3 +24,5 @@ rects[-1].set_color('orange')
 plt.box(False)
 plt.title(f'final accuracy|{history_filename}')
 plt.show()
+
+print(np.std(class_acc[:-2]))
