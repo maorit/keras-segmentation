@@ -1,3 +1,5 @@
+import os
+
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau, EarlyStopping
 from tensorflow.keras.optimizers import Adam
 
@@ -10,7 +12,7 @@ from utils.data_utils import generate_input_data
 
 # 保存的方式，3世代保存一次
 checkpoint_period = ModelCheckpoint(
-    LOG_DIR + 'ep{epoch:05d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5',
+    os.path.join(LOG_DIR + 'ep{epoch:05d}-loss{loss:.3f}-val_loss{val_loss:.3f}.h5'),
     monitor='val_loss',
     save_weights_only=True,
     save_best_only=True,

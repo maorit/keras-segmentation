@@ -1,8 +1,10 @@
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-from config import N_CLASSES, INPUT_WIDTH, INPUT_HEIGHT, PALETTE
+from config import N_CLASSES, INPUT_WIDTH, INPUT_HEIGHT, PALETTE, SEG_DIR, IMG_DIR
 from model.fcn import fcn_32
 from utils.data_utils import _load_image
 from utils.model_utils import get_pretrained_model
@@ -15,8 +17,7 @@ def predict(model, img_id):
     :param img_id: 图片id,str
     :return: 模型输出,np.array,(1,INPUT_WIDTH*INPUT_HEIGHT,21)
     """
-    test_data = _load_image(image_path=f'data\\VOCdevkit\\VOC2012\\JPEGImages\\{img_id}.jpg', width=INPUT_WIDTH,
-                            height=INPUT_HEIGHT)
+    test_data = _load_image(image_path=os.path.join(IMG_DIR, f'{img_id}.jpg'), width=INPUT_WIDTH, height=INPUT_HEIGHT)
     test_data = np.array([test_data])
     output_data = model.predict(test_data)
     return output_data
@@ -41,7 +42,7 @@ def clazznum2image(output_data, img_id):
         output_img[:, :, 2] += (output_data == c).astype(np.uint8) * PALETTE[c, 2]  # b
     output_img = Image.fromarray(output_img.astype(np.uint8))
     # 将图片缩放到原图片大小
-    original_img = Image.open(f'data\\VOCdevkit\\VOC2012\\JPEGImages\\{img_id}.jpg')
+    original_img = Image.open(os.path.join(IMG_DIR, f'{img_id}.jpg'))
     output_img = output_img.resize(original_img.size)
     return output_img
 
@@ -53,14 +54,14 @@ if __name__ == '__main__':
     hyper_permutation = 'fcn32_FocalLoss_PositiveNegativeBoth_OnesBalance_lr1e4_gamma5.h5'
     # hyper_permutation = 'fcn32_CrossEntropy_null_null_1e4.h5'
     # 展示真实分割
-    true_seg = Image.open(f'data\\VOCdevkit\\VOC2012\\SegmentationClass\\{img_id}.png')
+    true_seg = Image.open(os.path.join(SEG_DIR, f'{img_id}.png'))
     plt.imshow(true_seg)
     plt.show()
     # 展示预测分割
     model = get_pretrained_model(model_fn=model_fn, hyper_permutation=hyper_permutation)
     output_data = predict(model=model, img_id=img_id)
     output_img = clazznum2image(output_data=output_data, img_id=img_id)
-    output_img.save(f'{hyper_permutation}----{img_id}')
+    # output_img.save(f'{hyper_permutation}----{img_id}.png')
     plt.imshow(output_img)
     plt.title(f'{hyper_permutation}----{img_id}')
     plt.show()

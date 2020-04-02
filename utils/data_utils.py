@@ -1,6 +1,6 @@
 import itertools
+import os
 import random
-from pathlib import Path
 
 import numpy as np
 from PIL import Image
@@ -8,10 +8,10 @@ from PIL import Image
 from config import TRAIN_IDX_PATH, VAL_IDX_PATH, IMG_DIR, SEG_DIR, IMAGE_ORDERING
 
 
-def _load_image(image_path, width: int, height: int, data_format=IMAGE_ORDERING) -> np.ndarray:
+def _load_image(image_path: str, width: int, height: int, data_format=IMAGE_ORDERING) -> np.ndarray:
     """
     读取原图片,生成输入给模型的图片数据
-    :param image_path: 输入图片的路径,pathlib.Path对象或字符串
+    :param image_path: 输入图片的路径,字符串
     :param width: 生成数据的宽度
     :param height: 生成数据的高度
     :param data_format: 生成数据维度的顺序,one of "channels_last" or "channels_first"
@@ -29,10 +29,10 @@ def _load_image(image_path, width: int, height: int, data_format=IMAGE_ORDERING)
     return img
 
 
-def _load_label(seg_image_path: Path, n_classes: int, width: int, height: int) -> np.ndarray:
+def _load_label(seg_image_path: str, n_classes: int, width: int, height: int) -> np.ndarray:
     """
     读取分类结果图片,生成输入给模型的分割结果数据
-    :param seg_image_path: 分割结果图片的路径,pathlib.Path对象
+    :param seg_image_path: 分割结果图片的路径,字符串
     :param n_classes: 分割目标类别数
     :param width: 生成数据的宽度
     :param height: 生成数据的高度
@@ -100,11 +100,11 @@ def generate_input_data(stage: str, batch_size: int, n_classes: int, input_width
             # 获取下一个样本id
             id = next(ids)
             # 生成图片数据
-            img_path = Path.joinpath(IMG_DIR, f'{id}.jpg')
+            img_path = os.path.join(IMG_DIR, f'{id}.jpg')
             img_data = _load_image(img_path, width=input_width, height=input_height)
             img_arrays.append(img_data)
             # 生成对应的标签数据
-            seg_path = Path.joinpath(SEG_DIR, f'{id}.png')
+            seg_path = os.path.join(SEG_DIR, f'{id}.png')
             seg_data = _load_label(seg_path, n_classes=n_classes, width=output_width, height=output_height)
             seg_arrays.append(seg_data)
 
