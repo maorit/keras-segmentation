@@ -5,18 +5,7 @@ from PIL import Image
 from config import N_CLASSES, INPUT_WIDTH, INPUT_HEIGHT, PALETTE
 from model.fcn import fcn_32
 from utils.data_utils import _load_image
-
-
-def get_model(model_fn, hyper_permutation):
-    """
-    获取模型并加载训练好的权重
-    :param model_fn: 生成模型的函数
-    :param hyper_permutation: 超参数组合(权重文件名),str
-    :return: 加载了预训练权重的模型
-    """
-    model = model_fn(n_classes=N_CLASSES, input_width=INPUT_WIDTH, input_height=INPUT_HEIGHT)
-    model.load_weights(f"E:\\keras-segmentation\\logs\\{hyper_permutation}")
-    return model
+from utils.model_utils import get_pretrained_model
 
 
 def predict(model, img_id):
@@ -60,16 +49,18 @@ def clazznum2image(output_data, img_id):
 if __name__ == '__main__':
     # 参数设置
     model_fn = fcn_32
-    img_id = '2007_000129'
-    hyper_permutation = 'fcn32_FocalLoss_PositiveNegativeBoth_OnesBalance_lr1e4_gamma2.h5'
+    img_id = '2009_003849'
+    hyper_permutation = 'fcn32_FocalLoss_PositiveNegativeBoth_OnesBalance_lr1e4_gamma5.h5'
+    # hyper_permutation = 'fcn32_CrossEntropy_null_null_1e4.h5'
     # 展示真实分割
     true_seg = Image.open(f'data\\VOCdevkit\\VOC2012\\SegmentationClass\\{img_id}.png')
     plt.imshow(true_seg)
     plt.show()
     # 展示预测分割
-    model = get_model(model_fn=model_fn, hyper_permutation=hyper_permutation)
+    model = get_pretrained_model(model_fn=model_fn, hyper_permutation=hyper_permutation)
     output_data = predict(model=model, img_id=img_id)
     output_img = clazznum2image(output_data=output_data, img_id=img_id)
+    output_img.save(f'{hyper_permutation}----{img_id}')
     plt.imshow(output_img)
     plt.title(f'{hyper_permutation}----{img_id}')
     plt.show()

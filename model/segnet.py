@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Conv2D, Reshape, Activation, BatchNormalizat
 
 from config import IMAGE_ORDERING
 from model.vgg16 import vgg_encoder
-from utils.model_utils import _crop_to_size
+from utils.model_crop_utils import _crop_to_size
 
 
 def segnet(n_classes, input_height, input_width, encoder=vgg_encoder, n_up=5):

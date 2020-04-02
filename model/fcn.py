@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Conv2D, Dropout, Conv2DTranspose, Add, Resha
 
 from config import IMAGE_ORDERING
 from model.vgg16 import vgg_encoder
-from utils.model_utils import _crop_to_size, _crop_to_same
+from utils.model_crop_utils import _crop_to_size, _crop_to_same
 
 
 def fcn_32(n_classes, input_height, input_width, encoder=vgg_encoder):

@@ -70,7 +70,7 @@ def _generate_image_ids(stage: str) -> itertools.cycle:
         raise ValueError('传入的参数必须为"train"或"val"之一')
     # 读取文件,获取未经处理的id列表
     with open(idx_path, 'r') as f:
-        idxs = f.read().splitlines()
+        idxs = [line.strip() for line in f.readlines()]
     # 处理id列表并将其转为生成器
     random.shuffle(idxs)
     idx_generator = iter(idxs)
